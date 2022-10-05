@@ -1,20 +1,26 @@
+const dotenv = require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const users = [];
 const bcrypt = require('bcrypt');
+const user1 = {email: 'louis@louis.com', password: '$2b$10$5P7eWHhIHhKxewuy1aRnf.R9tEGA/r6HzBeMmxKlcqwLDuSQFsXfa'};
+const users = [user1];
+
 
 
 function LogUser(req, res) {
     const {email, password} = req.body;
+    console.log("req", req.body);
     const user = getUser(email);
+    console.log("user", user);
     if (user === null) return res.status(400).send('User not found');
     
-    checkPassword(user, password)
+    checkPassword(password, user.password)
         .then(result => {
+          console.log("result", result);
             if (!result) { return res.status(400).send('Invalid password'); }
             const token = createToken(email);
-            res.send({token, message: 'Logged in successfully', email: user.email});
+            res.send({token, message: 'Logged in successfully', email});
         })
-        .catch(err => res.status(500).send(err))
+        .catch(err => console.error(err))
 }
 
 function checkPassword(password, hashedPassword) {
@@ -34,11 +40,11 @@ function signUpUser (req, res) {
     const user = getUser(email);
     if (user) return res.status(400).send('User already exists');
     hashedPassword(password)
-      .then(hashedPassword)
+      .then((hash) => {
+        users.push({email, password: hash});
+        res.send({message: 'User created successfully'});
+      })
       .catch(err => new Error(err));
-    const newUser = {email, hashedPassword};
-    users.push(newUser);
-    res.send({message: 'User created successfully'});
 }
 
 function hashedPassword(password) {
@@ -48,4 +54,5 @@ function hashedPassword(password) {
 
 
 
-module.export = {LogUser, signUpUser}
+
+module.exports = {LogUser, signUpUser};
