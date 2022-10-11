@@ -1,21 +1,25 @@
 const dotenv = require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const user1 = {email: 'louis@louis.com', password: '$2b$10$5P7eWHhIHhKxewuy1aRnf.R9tEGA/r6HzBeMmxKlcqwLDuSQFsXfa'};
-const users = [user1];
+const { prisma } = require('../db/db');
 
 
 
-function LogUser(req, res) {
-    const {email, password} = req.body;
-    console.log("req", req.body);
-    const user = getUser(email);
-    console.log("user", user);
+
+
+function createToken(email) {
+  return jwt.sign({email}, process.env.SECRET_KEY, {expiresIn: '4h'});
+}
+
+async function LogUser(req, res) {
+  const {email, password} = req.body;
+  
+    const user = await getUser(email);
     if (user === null) return res.status(400).send('User not found');
+    console.log(user);
     
     checkPassword(password, user.password)
         .then(result => {
-          console.log("result", result);
             if (!result) { return res.status(400).send('Invalid password'); }
             const token = createToken(email);
             res.send({token, message: 'Logged in successfully', email});
@@ -28,23 +32,23 @@ function checkPassword(password, hashedPassword) {
 }
 
 function getUser(email) {
-  return users.find(user => user.email === email);
+  return prisma.user.findUnique({where: {email}})
 }
 
-function createToken(email) {
-  return jwt.sign({email}, process.env.SECRET_KEY, {expiresIn: '4h'});
-}
 
-function signUpUser (req, res) {
-    const {email, password} = req.body;
-    const user = getUser(email);
+async function signUpUser (req, res) {
+    const {email, password, confirmPassword} = req.body;
+    if (password !== confirmPassword) return res.status(400).send('Passwords do not match');
+    const user = await getUser(email);
     if (user) return res.status(400).send('User already exists');
     hashedPassword(password)
-      .then((hash) => {
-        users.push({email, password: hash});
-        res.send({message: 'User created successfully'});
-      })
+      .then((hash) => saveUser({email, password: hash}))
+      .then((user) =>  res.send({user}))
       .catch(err => new Error(err));
+}
+
+function saveUser(user) {
+  return prisma.user.create({data:user})
 }
 
 function hashedPassword(password) {
