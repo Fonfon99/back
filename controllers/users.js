@@ -16,7 +16,6 @@ async function LogUser(req, res) {
   
     const user = await getUser(email);
     if (user === null) return res.status(400).send('User not found');
-    console.log(user);
     
     checkPassword(password, user.password)
         .then(result => {

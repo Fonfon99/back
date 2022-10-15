@@ -7,8 +7,6 @@ const userRoutes = require('./routes/user.js');
 const postRoutes = require('./routes/post.js');
 const {prisma} = require('./db/db.js');
 
-prisma.user.findMany().then(users => console.log(users)).catch(err => console.error(err))
-
 app.use(cors());
 app.use(bodyParser.json());
 

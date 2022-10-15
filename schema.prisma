@@ -1,37 +1,53 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["referentialIntegrity"]
 }
+
 datasource db {
-  provider = "mysql"
-  url = env("DATABASE_URL")
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
   referentialIntegrity = "prisma"
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  password String
-  posts Post[] 
-  comments Comment[]
+  id         String       @id @default(cuid())
+  email      String    @unique
+  password   String
+  posts      Post[]   
+  likes      PostLike[]    
+  comments   Comment[]
 }
 
 model Post {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   title     String
   url       String?
-  userId    Int
-  user User @relation(fields: [userId], references: [id]) 
-  comments Comment[]
-  createdAt DateTime @default(now())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  // likedById String
+  // likedBy   User      @relation("likedBy",fields: [likedById], references: [id])
+  likes     PostLike[]   
+  likesNbr     Int       @default(0)
+  comments  Comment[]
+  createdAt DateTime  @default(now())
+}
+
+model PostLike {
+  post Post @relation(fields: [postId], references: [id])
+  postId Int @map("post_id")
+  user User @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  @@id([postId, userId])
+  @@map("post_likes")     
 }
 
 model Comment {
   id        Int      @id @default(autoincrement())
-  content  String
-  userId    Int
+  content   String
+  userId    String
   postId    Int
-  user User @relation(fields: [userId], references: [id]) 
-  post Post @relation(fields: [postId], references: [id]) 
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
   createdAt DateTime @default(now())
 }
