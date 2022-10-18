@@ -1,5 +1,24 @@
 const { prisma } = require("../db/db.js");
 
+async function getLike(req,res){
+  const id = Number(req.params.id);
+  const post = await prisma.post.findUnique({
+    where: { id },
+  });
+  if (!post) return res.status(400).send("Post not found");
+
+  const user = await prisma.user.findUnique({ where: { email: req.email } });
+  const userId = user.id;
+  const like = await prisma.PostLike.findUnique({
+    where: { postId_userId: { userId, postId: id } },
+  });
+  if (like) {
+    res.send({like: true})
+  } else {
+    res.send({like: false})
+  }
+};
+
 async function getPosts(req, res) {
   const email = req.email;
   const posts = await prisma.post.findMany({
@@ -154,4 +173,5 @@ module.exports = {
   createComment,
   deletePost,
   likeOrUnlike,
+  getLike,
 };
