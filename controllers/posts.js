@@ -114,7 +114,6 @@ async function likeOrUnlike(req, res) {
     },
   });
   res.send({ post: addLikeToPost, message: "Post liked successfully", like: true });
-  console.log("result", addLikeToPost);
 }
 }
 
@@ -137,7 +136,6 @@ async function createComment(req, res) {
   });
   const userId = userConnnected.id;
   const newcomment = { userId, postId: id, content: req.body.content };
-  console.log(req.body);
   const comment = await prisma.comment.create({ data: newcomment });
   res.send({ comment, message: "Comment created successfully" });
 }
