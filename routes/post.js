@@ -10,7 +10,7 @@ router.get("/", getPosts)
 router.post("/", multer, createPost)
 router.delete("/:id", deletePost)
 router.post("/:id/comments", createComment)
-router.get("/:id/like", getLike)
 router.post("/:id/like", likeOrUnlike)
+router.get("/:id/like", getLike)
 
 module.exports = router;

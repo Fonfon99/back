@@ -1,6 +1,7 @@
 const { prisma } = require("../db/db.js");
+const {unlink} = require('fs').promises;
 
-async function getLike(req,res){
+async function getLike(req, res) {
   const id = Number(req.params.id);
   const post = await prisma.post.findUnique({
     where: { id },
@@ -13,11 +14,11 @@ async function getLike(req,res){
     where: { postId_userId: { userId, postId: id } },
   });
   if (like) {
-    res.send({like: true})
+    res.send({ like: true });
   } else {
-    res.send({like: false})
+    res.send({ like: false });
   }
-};
+}
 
 async function getPosts(req, res) {
   const email = req.email;
@@ -77,11 +78,9 @@ async function likeOrUnlike(req, res) {
 
   const user = await prisma.user.findUnique({ where: { email: req.email } });
   const userId = user.id;
-  console.log(post);
   const like = await prisma.PostLike.findUnique({
     where: { postId_userId: { userId, postId: id } },
   });
-  console.log(like);
   if (like) {
     const unlikePost = await prisma.post.update({
       where: { id },
@@ -145,7 +144,6 @@ async function createComment(req, res) {
 
 async function deletePost(req, res) {
   const id = Number(req.params.id);
-  console.log(id);
   const post = await prisma.post.findUnique({
     where: { id },
     include: {
@@ -159,11 +157,16 @@ async function deletePost(req, res) {
   if (!post) return res.status(400).send("Post not found");
 
   const email = req.email;
+  const image = post.url;
   if (post.user.email !== email)
     return res.status(400).send("You are not authorized to delete this post");
 
   await prisma.comment.deleteMany({ where: { postId: id } });
   await prisma.post.delete({ where: { id } });
+  if (image) {
+    const filename = image.split("/images/")[1];
+  unlink(`images/${filename}`)
+  }
   res.send({ message: "Post deleted successfully" });
 }
 

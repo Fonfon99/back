@@ -24,8 +24,6 @@ model Post {
   url       String?
   userId    String
   user      User      @relation(fields: [userId], references: [id])
-  // likedById String
-  // likedBy   User      @relation("likedBy",fields: [likedById], references: [id])
   likes     PostLike[]   
   likesNbr     Int       @default(0)
   comments  Comment[]
