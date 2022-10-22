@@ -156,7 +156,6 @@ async function deletePost(req, res) {
 
   const email = req.email;
   const image = post.url;
-  console.log(email);
   if (email !== process.env.ADMIN_USER && email !== post.user.email) 
     return res.status(400).send("You are not authorized to delete this post");
 
