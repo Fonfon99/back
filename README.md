@@ -15,13 +15,10 @@ This is the backend of the Groupomania project. It is a social network for emplo
 3. Rename the `.env.development` file in the root directory into `.env` and fill the following variables with your own values:
   - `PORT` (default: 3000)
   - `SECRET_KEY` 
-  - `DB_HOST`
-  - `DB_PORT`
-  - `DB_USER`
-  - `DB_PASSWORD`
-  - `DB_NAME`
+  - `DB_URL` 
 
 4. This repo was tested with an online MySQL database hosted on PlanetScale. You can use your own database, but you will have to change the `datasource` property in the `prisma/schema.prisma` file.
+5. Run the server with `npm run dev`
 
 ### Prisma's usage to interact with the database
 
