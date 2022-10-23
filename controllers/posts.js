@@ -52,6 +52,7 @@ async function getPosts(req, res) {
 async function createPost(req, res) {
   const title = req.body.title;
   const email = req.email;
+  console.log(req.file);
   try {
     const hasImage = req.file !== undefined;
     const url = hasImage
@@ -140,6 +141,38 @@ async function createComment(req, res) {
   res.send({ comment, message: "Comment created successfully" });
 }
 
+async function updatePost(req, res) {
+  const id = Number(req.params.id);
+  console.log("req", req);
+  const post = await prisma.post.findUnique({
+    where: { id },
+    include: {
+      user: {
+        select: {
+          email: true,
+        },
+      },
+    },
+  });
+  if (!post) return res.status(400).send("Post not found");
+
+  const email = req.email;
+  console.log(post);
+  if (email !== process.env.ADMIN_USER && email !== post.user.email) 
+    return res.status(400).send("You are not authorized to update this post");
+
+  const title = req.body.title;
+  const hasImage = req.file !== undefined;
+  const url = hasImage
+    ? `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
+    : undefined; 
+  const updatePost = await prisma.post.update({
+    where: { id },
+    data: { title, url },
+  });
+  res.send({ post: updatePost, message: "Post updated successfully" });
+}
+
 async function deletePost(req, res) {
   const id = Number(req.params.id);
   const post = await prisma.post.findUnique({
@@ -175,4 +208,5 @@ module.exports = {
   deletePost,
   likeOrUnlike,
   getLike,
+  updatePost,
 };
