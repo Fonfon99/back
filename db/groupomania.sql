@@ -1,12 +1,12 @@
 CREATE TABLE `user` (
   `id` int(11) PRIMARY KEY AUTO_INCREMENT,
-  `prenom` varchar(50) NOT NULL,
-  `nom` varchar(50) NOT NULL
+  `email` varchar(50) NOT NULL,
+  `password` varchar(50) NOT NULL
 );
 
 CREATE TABLE `post` (
   `id` int(11) PRIMARY KEY AUTO_INCREMENT,
-  `titre` varchar(50) NOT NULL,
+  `title` varchar(50) NOT NULL,
   `url` varchar(50) NOT NULL,
   `user_id` int(int)
 );
